@@ -1,0 +1,121 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block page_intro %}
+<div id="page-intro"
+     data-message="Welcome to STEMboost — the accessible STEM learning platform.
+                   Do you already have an account?
+                   Press Y or Tab to YES, press N for NO.
+                   You can also use the Tab key to navigate to the Yes or No buttons and press Enter."
+     aria-hidden="true">
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════════════════════════
+     LANDING PAGE
+     The first screen a BVI user encounters.
+     1. Audio auto-plays the welcome + question on load.
+     2. Y key → /login/   |   N key → /register/
+     3. Tab-navigable YES/NO buttons with their own audio cues.
+══════════════════════════════════════════════════════════════ -->
+
+<div class="landing-hero" role="region" aria-label="Welcome to STEMboost">
+
+  <!-- Logo / Title -->
+  <h1 class="landing-logo" aria-label="STEMboost">
+    STEMboost
+  </h1>
+
+  <p class="landing-tagline" aria-label="Accessible STEM Learning for Blind and Visually Impaired Learners">
+    Accessible STEM Learning for Blind &amp; Visually Impaired Learners
+  </p>
+
+  <!-- Audio status indicator (visual only, sighted helper) -->
+  <div class="audio-status" aria-hidden="true">
+    <span class="audio-icon" aria-hidden="true">🔊</span>
+    <span id="audio-status-text">Audio is playing — listen for instructions</span>
+  </div>
+
+  <!-- Question block -->
+  <div class="card" role="region" aria-labelledby="question-heading">
+
+    <h2 id="question-heading" class="landing-question">
+      Do you have an account?
+    </h2>
+
+    <p style="text-align:center; color:var(--text-secondary); margin-bottom:2rem; font-size:1.05rem;">
+      Use <span class="key-badge">Tab</span> to navigate &nbsp;·&nbsp;
+      <span class="key-badge">Enter</span> to choose &nbsp;·&nbsp;
+      or press <span class="key-badge">Y</span> / <span class="key-badge">N</span>
+    </p>
+
+    <!-- YES / NO buttons -->
+    <div class="landing-buttons" role="group" aria-label="Account question — choose Yes or No">
+
+      <a href="/login/"
+         id="btn-yes"
+         class="btn landing-btn-yes"
+         tabindex="2"
+         role="button"
+         data-audio="You are on the YES button. You are on the Landing Page.
+                     Press Enter to go to the Login page."
+         aria-label="Yes, I have an account — go to Login">
+        ✓&nbsp;&nbsp;YES, I have an account
+      </a>
+
+      <a href="/register/"
+         id="btn-no"
+         class="btn landing-btn-no"
+         tabindex="3"
+         role="button"
+         data-audio="You are on the NO button. You are on the Landing Page.
+                     Press Enter to go to the Registration page and create a new account."
+         aria-label="No, I am new — go to Registration">
+        ✕&nbsp;&nbsp;NO, I am new here
+      </a>
+
+    </div><!-- /.landing-buttons -->
+
+    <!-- Keyboard hint panel -->
+    <div class="keyboard-hint" role="note" aria-label="Keyboard navigation tips">
+      <p>
+        Quick keys: press <span class="key-badge">Y</span> for Yes (Login) &nbsp;|&nbsp;
+        press <span class="key-badge">N</span> for No (Register)
+      </p>
+      <p style="margin-top:0.5rem;">
+        Press <span class="key-badge">Alt+H</span> at any time to hear these instructions again.
+      </p>
+    </div>
+
+  </div><!-- /.card -->
+
+  <!-- Accessible Features Summary (collapsible for screen reader) -->
+  <details style="margin-top:2rem; text-align:left;" tabindex="4">
+    <summary
+      class="btn btn-secondary btn-sm"
+      style="width:auto; display:inline-flex; margin:0 auto; cursor:pointer;"
+      data-audio="Accessibility features button. Press Enter to expand or collapse the list of accessibility features."
+      aria-label="Show accessibility features">
+      ♿ Accessibility Features
+    </summary>
+
+    <div class="card" style="margin-top:1rem;">
+      <h3 class="section-heading">How STEMboost Supports You</h3>
+      <ul style="color:var(--text-secondary); line-height:2; padding-left:1.5rem;">
+        <li>🔊 Audio instructions on every page and every focused element</li>
+        <li>⌨ Keyboard-only navigation throughout the entire platform</li>
+        <li>👁 High-contrast yellow on black colour scheme (WCAG AAA)</li>
+        <li>📐 Extra-large input fields and buttons</li>
+        <li>🗣 Screen reader compatible with ARIA labels on all elements</li>
+        <li>🔁 Press <strong>Alt+H</strong> to repeat page instructions at any time</li>
+        <li>🔇 Press <strong>Escape</strong> to stop audio speech</li>
+      </ul>
+    </div>
+  </details>
+
+</div><!-- /.landing-hero -->
+
+{% endblock %}

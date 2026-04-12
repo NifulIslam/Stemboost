@@ -1,0 +1,828 @@
+/* ============================================================
+   STEMboost – High-Contrast Accessible UI
+   Palette: #000000 bg / #FFD700 primary / #FFFFFF secondary
+   WCAG AAA contrast ratios throughout
+   ============================================================ */
+
+/* ── Google Fonts – accessible, ultra-legible choices ──────── */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&display=swap');
+
+/* ── CSS Variables ─────────────────────────────────────────── */
+:root {
+  --bg:           #000000;
+  --bg-card:      #0d0d0d;
+  --bg-input:     #111111;
+  --bg-hover:     #1a1a00;
+
+  --yellow:       #FFD700;
+  --yellow-light: #FFF176;
+  --yellow-dim:   #B8980A;
+  --white:        #FFFFFF;
+  --red:          #FF4444;
+  --green:        #00FF88;
+  --blue:         #66B2FF;
+
+  --text-primary:   #FFD700;
+  --text-secondary: #FFFFFF;
+  --text-muted:     #AAAAAA;
+
+  --border:         #FFD700;
+  --border-dim:     #555500;
+  --focus-ring:     #FFFFFF;
+  --focus-ring-2:   #FFD700;
+
+  --font-body:  'Atkinson Hyperlegible', Georgia, serif;
+  --font-mono:  'Space Mono', 'Courier New', monospace;
+
+  --radius:     8px;
+  --radius-lg:  12px;
+
+  --transition: 150ms ease;
+}
+
+/* ── Reset & Base ──────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 18px; /* Base larger for low-vision users */
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  line-height: 1.75;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Skip Link ─────────────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 12px;
+  z-index: 9999;
+  background: var(--yellow);
+  color: var(--bg);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 14px 24px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: top var(--transition);
+}
+.skip-link:focus {
+  top: 12px;
+}
+
+/* ── Screen Reader Only ────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Focus Styles – MUST be extremely visible ──────────────── */
+*:focus {
+  outline: 4px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+*:focus-visible {
+  outline: 4px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 7px rgba(255, 215, 0, 0.35);
+}
+
+/* ── Header / Nav ──────────────────────────────────────────── */
+header {
+  background: var(--bg-card);
+  border-bottom: 3px solid var(--border);
+  padding: 0 2rem;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 80px;
+  gap: 1rem;
+}
+
+.nav-brand {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--yellow);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.nav-brand span::before {
+  content: '⚡ ';
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-user {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-dim);
+  padding: 6px 14px;
+  border-radius: var(--radius);
+}
+
+/* ── Main Content ──────────────────────────────────────────── */
+main {
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+main.wide {
+  max-width: 1200px;
+}
+
+/* ── Page Heading ──────────────────────────────────────────── */
+.page-heading {
+  font-family: var(--font-mono);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--yellow);
+  letter-spacing: 1px;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+
+.page-subheading {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+}
+
+/* ── Cards ─────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-dim);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.card:focus-within {
+  border-color: var(--border);
+}
+
+/* ── Form Container ────────────────────────────────────────── */
+.form-container {
+  background: var(--bg-card);
+  border: 3px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+}
+
+/* ── Form Groups ────────────────────────────────────────────── */
+.form-group {
+  margin-bottom: 1.8rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--yellow);
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.5px;
+}
+
+/* ── Inputs – exceptionally large for BVI users ────────────── */
+.form-input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select,
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 72px;
+  padding: 18px 22px;
+  font-size: 1.2rem;
+  font-family: var(--font-body);
+  background: var(--bg-input);
+  color: var(--white);
+  border: 3px solid var(--border-dim);
+  border-radius: var(--radius);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-input:hover,
+input[type="text"]:hover,
+input[type="email"]:hover,
+input[type="password"]:hover,
+select:hover {
+  border-color: var(--yellow-dim);
+}
+
+.form-input:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+select:focus {
+  border-color: var(--yellow);
+  background: #0a0a00;
+  outline: 4px solid var(--focus-ring);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 7px rgba(255, 215, 0, 0.25);
+  color: var(--white);
+}
+
+select option {
+  background: var(--bg-card);
+  color: var(--yellow);
+  font-size: 1.1rem;
+  padding: 12px;
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 68px;
+  padding: 18px 36px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  width: 100%;
+  text-align: center;
+}
+
+.btn-primary {
+  background: var(--yellow);
+  color: var(--bg);
+}
+.btn-primary:hover {
+  background: var(--yellow-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--yellow);
+  border: 3px solid var(--yellow);
+}
+.btn-secondary:hover {
+  background: rgba(255, 215, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background: var(--red);
+  color: var(--white);
+  font-size: 0.95rem;
+  min-height: 48px;
+  padding: 12px 20px;
+  width: auto;
+}
+.btn-danger:hover {
+  background: #cc0000;
+}
+
+.btn-sm {
+  min-height: 48px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  width: auto;
+}
+
+/* Button focus – extra visible */
+.btn:focus-visible {
+  outline: 5px solid var(--focus-ring);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 9px rgba(255, 255, 255, 0.2);
+}
+
+/* ── Landing Page Specific ──────────────────────────────────── */
+.landing-hero {
+  text-align: center;
+  padding: 4rem 0 3rem;
+}
+
+.landing-logo {
+  font-family: var(--font-mono);
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--yellow);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  animation: pulse-glow 3s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { text-shadow: 0 0 20px rgba(255,215,0,0.4); }
+  50%       { text-shadow: 0 0 40px rgba(255,215,0,0.8); }
+}
+
+.landing-tagline {
+  font-size: 1.3rem;
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+}
+
+.audio-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  background: rgba(255, 215, 0, 0.08);
+  border: 2px solid var(--border-dim);
+  border-radius: var(--radius-lg);
+  padding: 1.2rem 2rem;
+  margin-bottom: 3rem;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+
+.audio-icon {
+  font-size: 1.6rem;
+  animation: speak-pulse 1.2s infinite;
+}
+
+@keyframes speak-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1);    }
+  50%       { opacity: 0.5; transform: scale(1.15); }
+}
+
+.landing-question {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  color: var(--yellow);
+  margin-bottom: 2rem;
+  text-align: center;
+  border-bottom: 2px solid var(--border-dim);
+  padding-bottom: 1.5rem;
+}
+
+.landing-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+}
+
+.landing-btn-yes {
+  background: var(--yellow);
+  color: var(--bg);
+  min-height: 100px;
+  font-size: 1.6rem;
+}
+.landing-btn-yes:hover {
+  background: var(--yellow-light);
+}
+
+.landing-btn-no {
+  background: transparent;
+  color: var(--yellow);
+  border: 4px solid var(--yellow);
+  min-height: 100px;
+  font-size: 1.6rem;
+}
+.landing-btn-no:hover {
+  background: rgba(255,215,0,0.1);
+}
+
+.keyboard-hint {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.key-badge {
+  display: inline-block;
+  background: var(--yellow);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin: 0 3px;
+}
+
+/* ── Error / Alert Messages ─────────────────────────────────── */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 1.2rem 1.5rem;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-left: 5px solid;
+}
+
+.alert-error {
+  background: rgba(255, 68, 68, 0.12);
+  border-color: var(--red);
+  color: #FF8888;
+}
+
+.alert-success {
+  background: rgba(0, 255, 136, 0.10);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.alert-info {
+  background: rgba(102, 178, 255, 0.10);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+/* Field errors */
+.field-error {
+  color: var(--red);
+  font-size: 0.95rem;
+  margin-top: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ── Dashboard Grid ─────────────────────────────────────────── */
+.dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 2px solid var(--border-dim);
+  padding-bottom: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-dim);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+  transition: border-color var(--transition);
+}
+
+.stat-card:focus-within,
+.stat-card:hover {
+  border-color: var(--border);
+}
+
+.stat-number {
+  font-family: var(--font-mono);
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--yellow);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ── Course Cards ───────────────────────────────────────────── */
+.course-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.course-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-dim);
+  border-radius: var(--radius-lg);
+  padding: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.course-card:hover,
+.course-card:focus {
+  border-color: var(--border);
+  background: var(--bg-hover);
+  outline: 4px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.course-icon {
+  font-size: 2.4rem;
+  flex-shrink: 0;
+  width: 64px;
+  text-align: center;
+}
+
+.course-info {
+  flex: 1;
+}
+
+.course-title {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-bottom: 0.4rem;
+}
+
+.course-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.8rem;
+}
+
+.progress-bar-wrap {
+  background: #222;
+  border-radius: 100px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--yellow-dim), var(--yellow));
+  transition: width 0.6s ease;
+}
+
+.progress-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ── Sessions Table / User Table ────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+.data-table th {
+  background: rgba(255,215,0,0.08);
+  color: var(--yellow);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 2px solid var(--border-dim);
+}
+
+.data-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #1a1a1a;
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.data-table tr:hover td {
+  background: var(--bg-hover);
+}
+
+.data-table tr:focus-within td {
+  background: rgba(255,215,0,0.05);
+}
+
+/* ── Role Badges ────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-learner { background: rgba(102,178,255,0.2); color: var(--blue); }
+.badge-mentor  { background: rgba(0,255,136,0.15);  color: var(--green); }
+.badge-admin   { background: rgba(255,215,0,0.15);  color: var(--yellow); }
+
+/* ── Keyboard Shortcuts ─────────────────────────────────────── */
+.shortcuts-table {
+  width: 100%;
+  font-size: 0.95rem;
+}
+.shortcuts-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #1a1a1a;
+  color: var(--text-secondary);
+}
+.shortcuts-table td:first-child {
+  font-family: var(--font-mono);
+  color: var(--yellow);
+  white-space: nowrap;
+  width: 140px;
+}
+
+/* ── Section Headings ───────────────────────────────────────── */
+.section-heading {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--yellow);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border-dim);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Link ───────────────────────────────────────────────────── */
+a {
+  color: var(--yellow);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+a:hover {
+  color: var(--yellow-light);
+}
+a:focus-visible {
+  outline: 4px solid var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+footer {
+  background: var(--bg-card);
+  border-top: 2px solid var(--border-dim);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+footer p + p {
+  margin-top: 0.4rem;
+}
+
+/* ── Divider ────────────────────────────────────────────────── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-dim);
+  margin: 2rem 0;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  html { font-size: 16px; }
+
+  .landing-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-logo {
+    font-size: 2.8rem;
+  }
+
+  nav {
+    flex-direction: column;
+    padding: 1rem 0;
+    gap: 0.8rem;
+  }
+
+  .data-table { font-size: 0.85rem; }
+  .data-table th, .data-table td { padding: 10px 10px; }
+}
+
+/* ── Print Styles ────────────────────────────────────────────── */
+@media print {
+  body { background: white; color: black; }
+  header, footer, .btn, .skip-link { display: none; }
+}
+
+/* ── STEMboost Extension Styles ────────────────────────────────────────── */
+
+/* Alert banners */
+.alert {
+  padding: 0.9rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.alert-success { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+.alert-error   { background: rgba(239,68,68,0.12);  color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+
+/* Small button variant */
+.btn-sm { padding: 0.35rem 0.85rem; font-size: 0.85rem; }
+
+/* Danger button */
+.btn-danger {
+  background: transparent;
+  color: var(--red, #ef4444);
+  border: 1px solid var(--red, #ef4444);
+}
+.btn-danger:hover { background: var(--red, #ef4444); color: #fff; }
+
+/* Badge for admin */
+.badge-admin   { background: rgba(168,85,247,0.15); color: #c084fc; }
+.badge-mentor  { background: rgba(59,130,246,0.15);  color: #60a5fa; }
+.badge-learner { background: rgba(34,197,94,0.15);   color: #4ade80; }
+
+/* Form inputs consistent styling */
+.form-input {
+  background: var(--surface, #1e1e2e);
+  color: var(--text-primary, #cdd6f4);
+  border: 1px solid var(--border, #313244);
+  border-radius: 6px;
+  padding: 0.55rem 0.85rem;
+  width: 100%;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.form-input:focus {
+  outline: 2px solid var(--yellow, #f9e2af);
+  border-color: var(--yellow, #f9e2af);
+}
+
+/* Progress bar */
+.progress-bar-wrap {
+  background: var(--border, #313244);
+  border-radius: 4px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--yellow, #f9e2af);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+.progress-label {
+  font-size: 0.8rem;
+  color: var(--text-muted, #6c7086);
+  margin-top: 0.3rem;
+}

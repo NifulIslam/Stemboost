@@ -1,0 +1,290 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block page_intro %}
+<div id="page-intro"
+     data-message="You are on the Registration Page.
+                   Let us create your STEMboost account.
+                   You will need to provide your email address, choose a password, and select your role.
+                   Use the Tab key to move between each field.
+                   Press Enter on the Create Account button when you are finished."
+     aria-hidden="true">
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════════════════════════
+     REGISTRATION PAGE
+     Audio-guided account creation. All fields announce their
+     purpose on focus. Role selector explains each option.
+══════════════════════════════════════════════════════════════ -->
+
+<div role="region" aria-labelledby="register-heading">
+
+  <h1 id="register-heading" class="page-heading">Create Account</h1>
+  <p class="page-subheading">
+    Join STEMboost. Fill in the details below to create your free account.
+  </p>
+
+  <div class="form-container">
+
+    <form method="post"
+          action="{% url 'register' %}"
+          data-accessible-form
+          novalidate
+          aria-label="Registration form — create a new STEMboost account">
+
+      {% csrf_token %}
+
+      <!-- Step indicator for screen readers -->
+      <p class="sr-only" aria-live="polite" id="form-step">
+        Registration form. 5 fields to complete.
+      </p>
+
+      <!-- ── Field 1: Email ─────────────────────────────────── -->
+      <div class="form-group">
+        <label for="id_email" id="label-email">
+          📧 Email Address
+          <span aria-label="required field" style="color:var(--red);">*</span>
+        </label>
+
+        <input type="email"
+               name="email"
+               id="id_email"
+               class="form-input"
+               placeholder="your@email.com"
+               tabindex="2"
+               autocomplete="email"
+               spellcheck="false"
+               required
+               aria-required="true"
+               aria-labelledby="label-email"
+               aria-describedby="email-hint {% if form.email.errors %}email-error{% endif %}"
+               data-audio="You are on the Registration Page.
+                           Field 1 of 5.
+                           You are on the Email Address input field.
+                           Please type your email address. This will be your username."
+               value="{{ form.email.value|default:'' }}">
+
+        <span id="email-hint" class="sr-only">
+          Enter a valid email address. This will be used to log in.
+        </span>
+
+        {% if form.email.errors %}
+        <div id="email-error" class="field-error" role="alert">
+          <span aria-hidden="true">✗</span>
+          {% for error in form.email.errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- ── Field 2: Password ──────────────────────────────── -->
+      <div class="form-group">
+        <label for="id_password1" id="label-password1">
+          🔑 Password
+          <span aria-label="required field" style="color:var(--red);">*</span>
+        </label>
+
+        <input type="password"
+               name="password1"
+               id="id_password1"
+               class="form-input"
+               placeholder="Create a strong password (min. 8 characters)"
+               tabindex="3"
+               autocomplete="new-password"
+               required
+               aria-required="true"
+               aria-labelledby="label-password1"
+               aria-describedby="password-help {% if form.password1.errors %}password-error{% endif %}"
+               data-audio="Field 2 of 5.
+                           You are on the Password input field.
+                           Please create a password with at least 8 characters.
+                           Mix uppercase, lowercase, numbers, and symbols for a stronger password.">
+
+        <p id="password-help" style="color:var(--text-muted); font-size:0.9rem; margin-top:0.4rem;">
+          At least 8 characters. Mix letters, numbers &amp; symbols.
+        </p>
+
+        {% if form.password1.errors %}
+        <div id="password-error" class="field-error" role="alert">
+          <span aria-hidden="true">✗</span>
+          {% for error in form.password1.errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- ── Field 3: Confirm Password ─────────────────────── -->
+      <div class="form-group">
+        <label for="id_password2" id="label-password2">
+          🔒 Confirm Password
+          <span aria-label="required field" style="color:var(--red);">*</span>
+        </label>
+
+        <input type="password"
+               name="password2"
+               id="id_password2"
+               class="form-input"
+               placeholder="Repeat your password"
+               tabindex="4"
+               autocomplete="new-password"
+               required
+               aria-required="true"
+               aria-labelledby="label-password2"
+               aria-describedby="{% if form.password2.errors %}confirm-error{% endif %}"
+               data-audio="Field 3 of 5.
+                           You are on the Confirm Password input field.
+                           Please retype your password exactly as before to confirm it matches.">
+
+        {% if form.password2.errors %}
+        <div id="confirm-error" class="field-error" role="alert">
+          <span aria-hidden="true">✗</span>
+          {% for error in form.password2.errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- ── Field 4: Role Selector ─────────────────────────── -->
+      <div class="form-group">
+        <label for="id_role" id="label-role">
+          🎓 I am joining as…
+          <span aria-label="required field" style="color:var(--red);">*</span>
+        </label>
+
+        <select name="role"
+                id="id_role"
+                class="form-input"
+                tabindex="5"
+                required
+                aria-required="true"
+                aria-labelledby="label-role"
+                aria-describedby="role-hint"
+                data-audio="Field 4 of 5.
+                            You are on the Role selector dropdown.
+                            Use the Up and Down arrow keys to choose your role.
+                            Option 1: Learner — for students who want to learn STEM.
+                            Option 2: Mentor — for teachers who guide learners.
+                            Option 3: Admin — for platform administrators.
+                            Press Enter or Space to confirm your choice.">
+
+          <option value=""
+                  {% if not form.role.value %}selected{% endif %}
+                  disabled>
+            — Select your role —
+          </option>
+
+          <option value="learner"
+                  {% if form.role.value == 'learner' %}selected{% endif %}>
+            🧑‍🎓  Learner — I want to learn STEM
+          </option>
+
+          <option value="mentor"
+                  {% if form.role.value == 'mentor' %}selected{% endif %}>
+            👩‍🏫  Mentor — I guide and teach learners
+          </option>
+
+          <option value="admin"
+                  {% if form.role.value == 'admin' %}selected{% endif %}>
+            🛡  Admin — I manage the platform
+          </option>
+        </select>
+
+        <p id="role-hint" style="color:var(--text-muted); font-size:0.9rem; margin-top:0.4rem;">
+          Choose the role that best describes you. This determines your dashboard.
+        </p>
+
+        {% if form.role.errors %}
+        <div class="field-error" role="alert">
+          <span aria-hidden="true">✗</span>
+          {% for error in form.role.errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Non-field errors -->
+      {% if form.non_field_errors %}
+      <div class="alert alert-error" role="alert" aria-live="assertive">
+        <span aria-hidden="true">⚠</span>
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- ── Submit Button ───────────────────────────────────── -->
+      <div class="form-group" style="margin-top:2rem; margin-bottom:0;">
+        <button type="submit"
+                class="btn btn-primary"
+                tabindex="6"
+                data-audio="Field 5 of 5.
+                            You are on the Create Account button.
+                            This is the last step.
+                            Press Enter to create your STEMboost account with the details you have entered."
+                aria-label="Create your STEMboost account">
+          ✚ Create My Account
+        </button>
+      </div>
+
+    </form>
+
+  </div><!-- /.form-container -->
+
+  <!-- Link back to login -->
+  <hr class="divider">
+
+  <p style="text-align:center; font-size:1.05rem; color:var(--text-secondary);">
+    Already have an account?
+  </p>
+
+  <a href="{% url 'login' %}"
+     class="btn btn-secondary"
+     style="margin-top:1rem; max-width:400px; display:block; margin-left:auto; margin-right:auto;"
+     tabindex="7"
+     data-audio="You are on the Go to Login link.
+                 Press Enter to go back to the Login page."
+     aria-label="Go to login page">
+    🔓 Go to Login
+  </a>
+
+  <a href="/"
+     style="display:block; text-align:center; margin-top:1.5rem; font-size:0.95rem;"
+     tabindex="8"
+     data-audio="Back to home page link. Press Enter to return to the landing page."
+     aria-label="Return to landing page">
+    ← Back to Home
+  </a>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Speak any field errors on load
+  const errors = document.querySelectorAll('.field-error');
+  if (errors.length > 0) {
+    let errorMessages = 'There are errors on the form. ';
+    errors.forEach(function (el) {
+      errorMessages += el.textContent.trim() + '. ';
+    });
+    setTimeout(function () {
+      window.speakText(errorMessages, 0.9);
+    }, 1200);
+  }
+
+  // Announce role description when select changes
+  const roleSelect = document.getElementById('id_role');
+  if (roleSelect) {
+    const descriptions = {
+      learner: 'Learner selected. You will access the Learner Dashboard with courses and progress tracking.',
+      mentor: 'Mentor selected. You will access the Mentor Dashboard to guide and support learners.',
+      admin: 'Admin selected. You will access the Admin Dashboard to manage all users and platform settings.',
+    };
+    roleSelect.addEventListener('change', function () {
+      const desc = descriptions[this.value];
+      if (desc) window.speakText(desc);
+    });
+  }
+});
+</script>
+{% endblock %}

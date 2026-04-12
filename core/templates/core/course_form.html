@@ -1,0 +1,133 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ page_name }}{% endblock %}
+{% block main_class %}class="wide"{% endblock %}
+
+{% block content %}
+<div role="region" aria-labelledby="course-form-heading">
+
+  <div class="dashboard-header" style="margin-bottom:1.5rem;">
+    <div>
+      <h1 id="course-form-heading" class="page-heading">
+        {% if course %}✏ Edit Course{% else %}＋ Create Course{% endif %}
+      </h1>
+      {% if course %}
+        <p class="page-subheading" style="color:var(--text-muted);">{{ course.title }}</p>
+      {% endif %}
+    </div>
+    <div style="display:flex;gap:0.8rem;align-items:center;">
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-sm">← Admin Dashboard</a>
+      <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm">↩ Logout</a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}"
+         role="alert" style="margin-bottom:1rem;">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;" class="responsive-grid">
+
+    <!-- Course Form -->
+    <section>
+      <div class="card">
+        <h2 class="section-heading">📝 Course Details</h2>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div style="display:flex;flex-direction:column;gap:1.2rem;">
+
+            <div>
+              <label for="{{ form.title.id_for_label }}" style="display:block;margin-bottom:0.4rem;font-weight:600;">
+                Course Title <span style="color:var(--red);">*</span>
+              </label>
+              {{ form.title }}
+              {% if form.title.errors %}
+                <p style="color:var(--red);font-size:0.85rem;margin-top:0.3rem;">{{ form.title.errors.0 }}</p>
+              {% endif %}
+            </div>
+
+            <div>
+              <label for="{{ form.description.id_for_label }}" style="display:block;margin-bottom:0.4rem;font-weight:600;">
+                Description
+              </label>
+              {{ form.description }}
+              {% if form.description.errors %}
+                <p style="color:var(--red);font-size:0.85rem;margin-top:0.3rem;">{{ form.description.errors.0 }}</p>
+              {% endif %}
+            </div>
+
+            <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-top:0.5rem;">
+              <button type="submit" class="btn btn-primary">{{ action }}</button>
+              <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Chapter Management (only if editing existing course) -->
+    {% if course %}
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.8rem;">
+        <h2 class="section-heading" style="margin:0;">📋 Chapters ({{ chapters|length }})</h2>
+        <a href="{% url 'admin_chapter_create' course.id %}" class="btn btn-primary btn-sm">
+          ＋ Add Chapter
+        </a>
+      </div>
+
+      {% if chapters %}
+      <div style="display:flex;flex-direction:column;gap:0.8rem;">
+        {% for chapter in chapters %}
+        <div class="card" style="padding:1rem 1.2rem;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+            <div>
+              <p style="font-weight:600;margin-bottom:0.3rem;">
+                <span style="color:var(--yellow);font-family:var(--font-mono);font-size:0.85rem;">#{{ chapter.order }}</span>
+                {{ chapter.title }}
+              </p>
+              <p style="color:var(--text-muted);font-size:0.85rem;">
+                {{ chapter.content|truncatechars:80 }}
+              </p>
+              {% if chapter.image %}
+                <p style="color:var(--green);font-size:0.8rem;margin-top:0.3rem;">🖼 Image attached</p>
+              {% endif %}
+            </div>
+            <div style="display:flex;gap:0.4rem;flex-shrink:0;flex-wrap:wrap;">
+              <a href="{% url 'admin_chapter_edit' chapter.id %}" class="btn btn-secondary btn-sm">✏ Edit</a>
+              <form method="post" action="{% url 'admin_chapter_delete' chapter.id %}"
+                    onsubmit="return confirm('Delete chapter {{ chapter.title }}?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="card" style="text-align:center;padding:2rem;">
+        <p style="color:var(--text-secondary);">No chapters yet.</p>
+        <a href="{% url 'admin_chapter_create' course.id %}" class="btn btn-primary" style="margin-top:1rem;">
+          ＋ Add First Chapter
+        </a>
+      </div>
+      {% endif %}
+    </section>
+    {% else %}
+    <section>
+      <div class="card" style="text-align:center;padding:2rem;">
+        <p style="color:var(--text-secondary);">Save the course first to start adding chapters.</p>
+      </div>
+    </section>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+  @media(max-width:768px){ .responsive-grid{ grid-template-columns:1fr !important; } }
+</style>
+{% endblock %}
