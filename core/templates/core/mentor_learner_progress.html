@@ -1,0 +1,137 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ page_name }}{% endblock %}
+{% block main_class %}class="wide"{% endblock %}
+
+{% block content %}
+<div role="region" aria-labelledby="progress-heading">
+
+  <!-- Header -->
+  <div class="dashboard-header" style="margin-bottom:1.5rem;">
+    <div>
+      <h1 id="progress-heading" class="page-heading">📊 Learner Progress</h1>
+      <p class="page-subheading">
+        <span style="color:var(--text-muted);">Viewing progress for:</span>
+        <strong style="color:var(--yellow);">{{ learner.email }}</strong>
+      </p>
+    </div>
+    <div style="display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
+      <a href="{% url 'mentor_chat' learner.id %}" class="btn btn-primary btn-sm"
+         aria-label="Chat with {{ learner.email }}">💬 Chat</a>
+      <a href="{% url 'mentor_dashboard' %}" class="btn btn-secondary btn-sm">← Dashboard</a>
+      <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm">↩ Logout</a>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="stats-grid" role="region" aria-label="Learner summary statistics" style="margin-bottom:2rem;">
+    <div class="stat-card" aria-label="{{ total_courses }} total courses">
+      <div class="stat-number">{{ total_courses }}</div>
+      <div class="stat-label">Total Courses</div>
+    </div>
+    <div class="stat-card" aria-label="{{ completed_count }} courses fully completed">
+      <div class="stat-number">{{ completed_count }}</div>
+      <div class="stat-label">Completed</div>
+    </div>
+    <div class="stat-card" aria-label="{{ overall_progress }} percent overall progress">
+      <div class="stat-number">{{ overall_progress }}%</div>
+      <div class="stat-label">Overall Progress</div>
+    </div>
+    <div class="stat-card" aria-label="{{ learner.date_joined|date:'d M Y' }} date joined">
+      <div class="stat-number" style="font-size:1.1rem;">{{ learner.date_joined|date:"d M Y" }}</div>
+      <div class="stat-label">Joined</div>
+    </div>
+  </div>
+
+  <!-- Course Progress Cards -->
+  {% if courses %}
+  <section aria-labelledby="courses-progress-heading">
+    <h2 id="courses-progress-heading" class="section-heading">📚 Course-by-Course Breakdown</h2>
+
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      {% for course in courses %}
+      <div class="card" style="padding:1.4rem 1.6rem;">
+
+        <!-- Course header row -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <div>
+            <h3 style="margin:0 0 0.3rem 0;font-size:1.1rem;color:var(--text-primary);">
+              {{ course.title }}
+            </h3>
+            {% if course.description %}
+            <p style="color:var(--text-muted);font-size:0.88rem;margin:0;">
+              {{ course.description|truncatechars:100 }}
+            </p>
+            {% endif %}
+          </div>
+
+          <!-- Progress badge -->
+          <div style="text-align:center;flex-shrink:0;">
+            <div style="font-size:1.6rem;font-weight:800;
+                        color:{% if course.progress == 100 %}var(--green){% elif course.progress > 0 %}var(--yellow){% else %}var(--text-muted){% endif %};">
+              {{ course.progress }}%
+            </div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">
+              {% if course.progress == 100 %}
+                ✅ Complete
+              {% elif course.progress > 0 %}
+                🔄 In Progress
+              {% else %}
+                ○ Not Started
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-bar-wrap" role="progressbar"
+             aria-valuenow="{{ course.progress }}" aria-valuemin="0" aria-valuemax="100"
+             aria-label="{{ course.title }}: {{ course.progress }}% complete"
+             style="margin-bottom:1rem;">
+          <div class="progress-bar-fill" style="width:{{ course.progress }}%;
+               background:{% if course.progress == 100 %}var(--green){% else %}var(--yellow){% endif %};"></div>
+        </div>
+
+        <!-- Chapter breakdown -->
+        {% if course.chapters %}
+        <div>
+          <p style="font-size:0.8rem;color:var(--text-muted);font-weight:700;margin-bottom:0.5rem;letter-spacing:0.05em;">
+            CHAPTERS ({{ course.chapters|length }})
+          </p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.4rem;">
+            {% for chapter in course.chapters %}
+            <div style="display:flex;align-items:center;gap:0.6rem;
+                        padding:0.45rem 0.75rem;border-radius:6px;
+                        border:1px solid var(--border);
+                        background:{% if chapter.is_completed %}rgba(34,197,94,0.07){% else %}var(--surface){% endif %};">
+              <span style="font-size:1rem;flex-shrink:0;">
+                {% if chapter.is_completed %}✅{% else %}○{% endif %}
+              </span>
+              <span style="font-size:0.88rem;
+                           color:{% if chapter.is_completed %}var(--green){% else %}var(--text-muted){% endif %};">
+                {{ chapter.title }}
+              </span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% else %}
+        <p style="font-size:0.85rem;color:var(--text-muted);font-style:italic;">
+          This course has no chapters yet.
+        </p>
+        {% endif %}
+
+      </div><!-- /.card -->
+      {% endfor %}
+    </div>
+
+  </section>
+
+  {% else %}
+  <div class="card" style="text-align:center;padding:3rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
+    <p style="color:var(--text-secondary);">No courses have been created yet.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

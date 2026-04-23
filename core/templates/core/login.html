@@ -1,0 +1,184 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block page_intro %}
+<div id="page-intro"
+     data-message="You are on the Login Page.
+                   Please enter your email address and password to access your account.
+                   Use the Tab key to move between fields.
+                   Press Enter on the Login button when you are ready to submit."
+     aria-hidden="true">
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════════════════════════
+     LOGIN PAGE
+     Audio-guided login for BVI users.
+     Every field announces itself on focus.
+══════════════════════════════════════════════════════════════ -->
+
+<div role="region" aria-labelledby="login-heading">
+
+  <h1 id="login-heading" class="page-heading">Login</h1>
+  <p class="page-subheading">
+    Welcome back. Enter your credentials to access your dashboard.
+  </p>
+
+  <!-- Error alert -->
+  {% if error_message %}
+  <div class="alert alert-error"
+       role="alert"
+       aria-live="assertive"
+       aria-atomic="true"
+       tabindex="-1"
+       id="login-error">
+    <span aria-hidden="true">⚠</span>
+    {{ error_message }}
+  </div>
+  {% endif %}
+
+  <!-- Login form card -->
+  <div class="form-container">
+
+    <form method="post"
+          action="{% url 'login' %}"
+          data-accessible-form
+          novalidate
+          aria-label="Login form">
+
+      {% csrf_token %}
+
+      <!-- ── Email Field ──────────────────────────────────────── -->
+      <div class="form-group">
+        <label for="id_email" id="label-email">
+          📧 Email Address <span aria-label="required" style="color:var(--red);">*</span>
+        </label>
+
+        <input type="email"
+               name="email"
+               id="id_email"
+               class="form-input"
+               placeholder="your@email.com"
+               tabindex="2"
+               autocomplete="email"
+               spellcheck="false"
+               required
+               aria-required="true"
+               aria-labelledby="label-email"
+               aria-describedby="email-hint"
+               data-audio="You are on the Login Page.
+                           You are on the Email Address input field.
+                           Please type your registered email address."
+               value="{{ form.email.value|default:'' }}">
+
+        <span id="email-hint" class="sr-only">Enter the email address you registered with</span>
+
+        {% if form.email.errors %}
+        <div class="field-error" role="alert" aria-live="polite">
+          <span aria-hidden="true">✗</span>
+          {% for error in form.email.errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- ── Password Field ──────────────────────────────────── -->
+      <div class="form-group">
+        <label for="id_password" id="label-password">
+          🔑 Password <span aria-label="required" style="color:var(--red);">*</span>
+        </label>
+
+        <input type="password"
+               name="password"
+               id="id_password"
+               class="form-input"
+               placeholder="••••••••"
+               tabindex="3"
+               autocomplete="current-password"
+               required
+               aria-required="true"
+               aria-labelledby="label-password"
+               aria-describedby="password-hint"
+               data-audio="You are on the Password input field.
+                           Please type your password.
+                           This field is hidden for your security.">
+
+        <span id="password-hint" class="sr-only">
+          Enter your account password. Characters are hidden.
+        </span>
+
+        {% if form.password.errors %}
+        <div class="field-error" role="alert" aria-live="polite">
+          <span aria-hidden="true">✗</span>
+          {% for error in form.password.errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- ── Submit Button ───────────────────────────────────── -->
+      <div class="form-group" style="margin-bottom:1rem;">
+        <button type="submit"
+                class="btn btn-primary"
+                tabindex="4"
+                data-audio="You are on the Login button.
+                            Press Enter to submit your email and password and log in to STEMboost."
+                aria-label="Login to STEMboost">
+          🔓 Login to STEMboost
+        </button>
+      </div>
+
+      <!-- ── Non-field errors ────────────────────────────────── -->
+      {% if form.non_field_errors %}
+      <div class="alert alert-error" role="alert">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
+      {% endif %}
+
+    </form>
+
+  </div><!-- /.form-container -->
+
+  <!-- Navigation link to registration -->
+  <hr class="divider">
+
+  <p style="text-align:center; font-size:1.05rem; color:var(--text-secondary);">
+    Don't have an account yet?
+  </p>
+
+  <a href="{% url 'register' %}"
+     class="btn btn-secondary"
+     style="margin-top:1rem; max-width:400px; display:block; margin-left:auto; margin-right:auto;"
+     tabindex="5"
+     data-audio="You are on the Create an Account link.
+                 You are on the Login Page.
+                 Press Enter to go to the Registration page and create a new account."
+     aria-label="Go to registration page to create a new account">
+    ✚ Create a New Account
+  </a>
+
+  <a href="/"
+     style="display:block; text-align:center; margin-top:1.5rem; font-size:0.95rem;"
+     tabindex="6"
+     data-audio="Back to home page link. Press Enter to return to the landing page."
+     aria-label="Return to the landing page">
+    ← Back to Home
+  </a>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Move focus to error message if one is present
+document.addEventListener('DOMContentLoaded', function () {
+  const err = document.getElementById('login-error');
+  if (err) {
+    err.focus();
+    window.speakText('Login error: ' + err.textContent.trim());
+  }
+});
+</script>
+{% endblock %}

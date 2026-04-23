@@ -1,0 +1,132 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="STEMboost – Accessible STEM Learning for Blind and Visually Impaired Learners">
+  <title>{% block title %}STEMboost{% endblock %} | Accessible STEM Learning</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+  <!-- ① Skip Navigation -->
+  <a href="#main-content"
+     class="skip-link"
+     tabindex="1"
+     aria-label="Skip to main content">
+    Skip to main content
+  </a>
+
+  <!-- ② ARIA Live Region -->
+  <div id="sr-announcer"
+       role="status"
+       aria-live="polite"
+       aria-atomic="true"
+       class="sr-only">
+  </div>
+
+  <!-- ③ Page Intro Audio Data -->
+  {% block page_intro %}{% endblock %}
+
+  <!-- ④ Header / Navigation -->
+  <header role="banner">
+    <nav role="navigation" aria-label="Main site navigation">
+
+      <div class="nav-brand" aria-label="STEMboost – Accessible STEM Learning Platform">
+        STEMboost
+      </div>
+
+      <div class="nav-links" role="menubar" aria-label="User actions" style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+
+        {% if user.is_authenticated %}
+        <span class="nav-user"
+              aria-label="Logged in as {{ user.email }}, role: {{ user.role }}">
+          {{ user.email }}&nbsp;
+          <span class="badge badge-{{ user.role }}" aria-hidden="true">{{ user.role|upper }}</span>
+        </span>
+
+        {% if user.role == 'learner' %}
+        <!-- Cart icon in nav for learners -->
+        <a href="{% url 'cart_view' %}"
+           class="btn btn-secondary btn-sm"
+           role="menuitem"
+           aria-label="Shopping cart"
+           id="nav-cart-btn">
+          🛒 Cart
+        </a>
+        {% endif %}
+
+        <a href="{% url 'logout' %}"
+           class="btn btn-secondary btn-sm"
+           role="menuitem"
+           aria-label="Logout from STEMboost">
+          ↩ Logout
+        </a>
+        {% endif %}
+
+        <!-- ── Global Mute / Unmute Button ── -->
+        <button id="btn-mute-toggle"
+                class="btn btn-secondary btn-sm"
+                aria-label="Mute audio"
+                aria-pressed="false"
+                title="Mute or unmute spoken audio"
+                type="button"
+                style="min-width:90px;">
+          🔊 Mute
+        </button>
+
+      </div>
+    </nav>
+  </header>
+
+  <!-- ⑤ Main Content Area -->
+  <main id="main-content"
+        role="main"
+        {% block main_class %}{% endblock %}>
+
+    <!-- Django flash messages -->
+    {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}"
+           role="alert"
+           aria-live="assertive"
+           aria-atomic="true"
+           data-flash-msg="{{ message }}">
+        <span aria-hidden="true">
+          {% if message.tags == 'error' %}⚠{% elif message.tags == 'success' %}✓{% else %}ℹ{% endif %}
+        </span>
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+  </main>
+
+  <!-- ⑥ Footer -->
+  <footer role="contentinfo">
+    <p>STEMboost &copy; 2025 &mdash; Accessible STEM Education for Everyone</p>
+    <p>
+      <small>
+        Keyboard shortcuts:
+        <kbd>Tab</kbd> navigate &nbsp;·&nbsp;
+        <kbd>Shift+Tab</kbd> go back &nbsp;·&nbsp;
+        <kbd>Alt+H</kbd> repeat instructions &nbsp;·&nbsp;
+        <kbd>Alt+R</kbd> read focused element &nbsp;·&nbsp;
+        <kbd>Esc</kbd> stop speech
+      </small>
+    </p>
+  </footer>
+
+  <!-- ⑦ Audio / Accessibility JS -->
+  <script src="{% static 'core/js/audio.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>

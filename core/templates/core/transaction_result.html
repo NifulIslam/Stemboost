@@ -1,0 +1,77 @@
+{% extends 'core/base.html' %}
+{% block title %}Transaction Result{% endblock %}
+{% block main_class %}class="wide"{% endblock %}
+
+{% block content %}
+<div role="region" aria-labelledby="result-heading" style="max-width:600px;margin:0 auto;text-align:center;">
+
+  {% if transaction.status == 'success' %}
+    <div style="font-size:5rem;margin-bottom:1rem;">✅</div>
+    <h1 id="result-heading" class="page-heading" style="color:var(--green);">Payment Successful!</h1>
+    <p style="color:var(--text-secondary);margin-bottom:1.5rem;">
+      Your demo transaction was successful. You are now enrolled in the following course{{ courses|length|pluralize }}:
+    </p>
+    <div style="text-align:left;margin-bottom:2rem;">
+      {% for course in courses %}
+      <div class="card" style="padding:0.8rem 1.2rem;margin-bottom:0.6rem;
+                                display:flex;align-items:center;gap:0.8rem;">
+        <span style="font-size:1.3rem;">📖</span>
+        <div>
+          <p style="font-weight:600;">{{ course.title }}</p>
+          <p style="font-size:0.85rem;color:var(--text-muted);">You can now access all chapters.</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div style="font-family:var(--font-mono);font-size:0.78rem;color:var(--text-muted);margin-bottom:1.5rem;">
+      Ref: {{ transaction.transaction_ref }}
+    </div>
+    <a href="{% url 'learner_dashboard' %}" class="btn btn-primary" style="display:inline-block;">
+      🎓 Go to My Courses
+    </a>
+
+  {% elif transaction.status == 'cancelled' %}
+    <div style="font-size:5rem;margin-bottom:1rem;">↩</div>
+    <h1 id="result-heading" class="page-heading" style="color:var(--yellow);">Transaction Cancelled</h1>
+    <p style="color:var(--text-secondary);margin-bottom:1.5rem;">
+      You cancelled the demo payment. No courses were enrolled. You can try again anytime.
+    </p>
+    <div style="font-family:var(--font-mono);font-size:0.78rem;color:var(--text-muted);margin-bottom:1.5rem;">
+      Ref: {{ transaction.transaction_ref }}
+    </div>
+    <div style="display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap;">
+      <a href="{% url 'cart_view' %}" class="btn btn-secondary">← Back to Cart</a>
+      <a href="{% url 'learner_dashboard' %}" class="btn btn-primary">Dashboard</a>
+    </div>
+
+  {% else %}
+    <div style="font-size:5rem;margin-bottom:1rem;">⚠️</div>
+    <h1 id="result-heading" class="page-heading" style="color:var(--red);">Payment Failed</h1>
+    <p style="color:var(--text-secondary);margin-bottom:1.5rem;">
+      The demo transaction was not successful. No courses were enrolled. Please try again.
+    </p>
+    <div style="font-family:var(--font-mono);font-size:0.78rem;color:var(--text-muted);margin-bottom:1.5rem;">
+      Ref: {{ transaction.transaction_ref }}
+    </div>
+    <div style="display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap;">
+      <a href="{% url 'cart_view' %}" class="btn btn-secondary">← Back to Cart</a>
+      <a href="{% url 'learner_dashboard' %}" class="btn btn-primary">Dashboard</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  {% if transaction.status == 'success' %}
+  window.speakText('Payment successful! You are now enrolled in your course{{ courses|length|pluralize }}. Go to My Courses to start learning.');
+  {% elif transaction.status == 'cancelled' %}
+  window.speakText('Transaction cancelled. No courses were enrolled.');
+  {% else %}
+  window.speakText('Payment failed. No courses were enrolled. Please try again.');
+  {% endif %}
+});
+</script>
+{% endblock %}

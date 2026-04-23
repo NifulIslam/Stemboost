@@ -1,0 +1,241 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ chapter.title }}{% endblock %}
+
+{% block page_intro %}
+<div id="page-intro"
+     data-message="You are reading chapter: {{ chapter.title }}, from course: {{ course.title }}. Press the Read Aloud button to hear this chapter. Press Alt H to hear this again."
+     aria-hidden="true"></div>
+{% endblock %}
+{% block main_class %}class="wide"{% endblock %}
+
+{% block content %}
+<div role="region" aria-labelledby="chapter-heading">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="Breadcrumb" style="margin-bottom:1.2rem;font-size:0.9rem;color:var(--text-muted);">
+    <a href="{% url 'learner_dashboard' %}" style="color:var(--yellow);">Dashboard</a>
+    <span style="margin:0 0.5rem;">›</span>
+    <span>{{ course.title }}</span>
+    <span style="margin:0 0.5rem;">›</span>
+    <span style="color:var(--text-primary);">{{ chapter.title }}</span>
+  </nav>
+
+  <!-- Header -->
+  <div class="dashboard-header" style="margin-bottom:1.5rem;">
+    <div>
+      <h1 id="chapter-heading" class="page-heading">{{ chapter.title }}</h1>
+      <p class="page-subheading" style="color:var(--text-muted);">{{ course.title }}</p>
+    </div>
+    <div style="display:flex;gap:0.8rem;flex-wrap:wrap;align-items:center;">
+      <a href="{% url 'learner_dashboard' %}" class="btn btn-secondary btn-sm">← Back</a>
+      <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm">↩ Logout</a>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:2rem;align-items:start;" class="responsive-grid">
+
+    <!-- Main Content -->
+    <div>
+      <!-- Read Aloud Controls -->
+      <div class="card" style="padding:1rem 1.5rem;margin-bottom:1.5rem;
+                                display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <button id="btn-read-aloud" class="btn btn-primary"
+                onclick="startReading()"
+                aria-label="Read this chapter aloud using text-to-speech">
+          🔊 Read Aloud
+        </button>
+        <button id="btn-stop-reading" class="btn btn-secondary" style="display:none;"
+                onclick="stopReading()"
+                aria-label="Stop reading">
+          ⏹ Stop
+        </button>
+        <span id="read-status" style="color:var(--text-muted);font-size:0.9rem;" aria-live="polite"></span>
+        <span style="color:var(--text-muted);font-size:0.82rem;margin-left:auto;">
+          💡 Tip: Press <kbd>Ctrl+R</kbd> to start/stop reading
+        </span>
+      </div>
+
+      <!-- Chapter Text -->
+      <div class="card" id="chapter-content" style="line-height:1.9;font-size:1.05rem;">
+        <h2 style="color:var(--yellow);margin-bottom:1rem;">📄 Chapter Content</h2>
+        <div style="color:var(--text-primary);white-space:pre-wrap;">{{ chapter.content }}</div>
+      </div>
+
+      <!-- Chapter Image -->
+      {% if chapter.image %}
+      <div class="card" style="margin-top:1.5rem;">
+        <h2 style="color:var(--yellow);margin-bottom:1rem;">🖼 Chapter Image</h2>
+        <img src="{{ chapter.image.url }}"
+             alt="{{ chapter.image_description|default:'Chapter illustration' }}"
+             style="width:100%;border-radius:8px;max-height:500px;object-fit:contain;"
+             aria-describedby="img-desc">
+        {% if chapter.image_description %}
+        <div id="img-desc" style="margin-top:1rem;padding:1rem;
+                                   background:rgba(255,255,255,0.04);border-radius:6px;
+                                   border-left:3px solid var(--yellow);">
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:0.4rem;font-weight:600;">
+            IMAGE DESCRIPTION
+          </p>
+          <p style="color:var(--text-primary);line-height:1.7;">{{ chapter.image_description }}</p>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Mark Complete -->
+      <div style="margin-top:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        {% if is_completed %}
+          <div style="display:flex;align-items:center;gap:0.6rem;color:var(--green);font-weight:700;">
+            ✅ Chapter completed!
+          </div>
+        {% else %}
+          <button id="btn-complete" class="btn btn-primary"
+                  onclick="markComplete({{ chapter.id }})"
+                  aria-label="Mark this chapter as complete">
+            ✓ Mark as Complete
+          </button>
+          <span id="complete-status" style="color:var(--text-muted);font-size:0.9rem;" aria-live="polite"></span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Sidebar: Chapter Navigation -->
+    <aside>
+      <div class="card">
+        <h2 class="section-heading">📋 All Chapters</h2>
+        <nav aria-label="Chapter navigation">
+          <!-- Previous / Next -->
+          <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+            {% if prev_chapter %}
+              <a href="{% url 'chapter_view' prev_chapter.id %}" class="btn btn-secondary btn-sm"
+                 aria-label="Previous chapter: {{ prev_chapter.title }}">← Prev</a>
+            {% endif %}
+            {% if next_chapter %}
+              <a href="{% url 'chapter_view' next_chapter.id %}" class="btn btn-secondary btn-sm"
+                 aria-label="Next chapter: {{ next_chapter.title }}">Next →</a>
+            {% endif %}
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.6rem;">
+            From: <strong>{{ course.title }}</strong>
+          </p>
+        </nav>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- Hidden TTS data -->
+<div id="tts-text" style="display:none;">{{ chapter.content }}</div>
+<div id="tts-img-desc" style="display:none;">{% if chapter.image_description %}Image description: {{ chapter.image_description }}{% endif %}</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+  @media(max-width:768px){ .responsive-grid{ grid-template-columns:1fr !important; } }
+  kbd { background:var(--surface); border:1px solid var(--border); border-radius:4px;
+        padding:1px 5px; font-size:0.8rem; font-family:var(--font-mono); }
+</style>
+<script>
+  // ── Text-to-Speech (Web Speech API) ──────────────────────────────────────
+  // Implements the chapter reading feature (adapted from courses/read.py logic,
+  // using browser's SpeechSynthesis instead of server-side SpeechT5 model).
+
+  var synth     = window.speechSynthesis;
+  var isReading = false;
+
+  function buildFullText() {
+    var text    = document.getElementById('tts-text').innerText.trim();
+    var imgDesc = document.getElementById('tts-img-desc').innerText.trim();
+    return imgDesc ? text + '. ' + imgDesc : text;
+  }
+
+  function startReading() {
+    if (!synth) {
+      setStatus('Text-to-speech is not supported in this browser.');
+      return;
+    }
+    if (isReading) { stopReading(); return; }
+
+    var fullText = buildFullText();
+    if (!fullText) { setStatus('No content to read.'); return; }
+
+    var utterance    = new SpeechSynthesisUtterance(fullText);
+    utterance.rate   = 0.95;
+    utterance.pitch  = 1;
+    utterance.lang   = 'en-US';
+
+    utterance.onstart = function() {
+      isReading = true;
+      setStatus('Reading…');
+      document.getElementById('btn-read-aloud').style.display = 'none';
+      document.getElementById('btn-stop-reading').style.display = '';
+    };
+    utterance.onend = utterance.onerror = function() {
+      isReading = false;
+      setStatus('');
+      document.getElementById('btn-read-aloud').style.display = '';
+      document.getElementById('btn-stop-reading').style.display = 'none';
+    };
+
+    synth.cancel();
+    synth.speak(utterance);
+  }
+
+  function stopReading() {
+    synth.cancel();
+    isReading = false;
+    setStatus('');
+    document.getElementById('btn-read-aloud').style.display = '';
+    document.getElementById('btn-stop-reading').style.display = 'none';
+  }
+
+  function setStatus(msg) {
+    document.getElementById('read-status').textContent = msg;
+  }
+
+  // Ctrl+R shortcut to toggle reading (prevents page refresh)
+  document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'r') {
+      e.preventDefault();
+      isReading ? stopReading() : startReading();
+    }
+  });
+
+  // ── Mark Chapter Complete ─────────────────────────────────────────────────
+  function markComplete(chapterId) {
+    var btn = document.getElementById('btn-complete');
+    if (btn) btn.disabled = true;
+
+    fetch('/api/chapter/' + chapterId + '/complete/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok) {
+        var status = document.getElementById('complete-status');
+        if (status) status.textContent = '';
+        if (btn) {
+          btn.outerHTML = '<div style="display:flex;align-items:center;gap:0.6rem;color:var(--green);font-weight:700;">✅ Chapter completed!</div>';
+        }
+      }
+    })
+    .catch(function() {
+      var status = document.getElementById('complete-status');
+      if (status) status.textContent = 'Error saving — please try again.';
+      if (btn) btn.disabled = false;
+    });
+  }
+
+  function getCookie(name) {
+    var value = '; ' + document.cookie;
+    var parts = value.split('; ' + name + '=');
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
+  }
+</script>
+{% endblock %}

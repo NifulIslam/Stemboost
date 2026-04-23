@@ -1,0 +1,228 @@
+{% extends 'core/base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block page_intro %}
+<div id="page-intro"
+     data-message="You are on the Admin Dashboard. Welcome, {{ user.email }}. You can manage users, courses, and mentor assignments."
+     aria-hidden="true"></div>
+{% endblock %}
+
+{% block main_class %}class="wide"{% endblock %}
+
+{% block content %}
+<div role="region" aria-labelledby="admin-heading">
+
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div>
+      <h1 id="admin-heading" class="page-heading">🛡 Admin Dashboard</h1>
+      <p class="page-subheading">
+        Welcome, <strong style="color:var(--yellow);">{{ user.email }}</strong>
+        &nbsp;·&nbsp; Role: <span class="badge badge-admin">Admin</span>
+        &nbsp;·&nbsp; User ID: #{{ user.userid }}
+      </p>
+    </div>
+    <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm" aria-label="Logout">↩ Logout</a>
+  </div>
+
+  <!-- Flash Messages -->
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}"
+         role="alert" aria-live="assertive" style="margin-bottom:1rem;">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- ── Stats ── -->
+  <section aria-labelledby="stats-heading">
+    <h2 id="stats-heading" class="section-heading">📊 Platform Statistics</h2>
+    <div class="stats-grid" role="list">
+      <div class="stat-card" role="listitem" aria-label="{{ total_users }} total users">
+        <div class="stat-number">{{ total_users }}</div><div class="stat-label">Total Users</div>
+      </div>
+      <div class="stat-card" role="listitem" aria-label="{{ total_learners }} learners">
+        <div class="stat-number">{{ total_learners }}</div><div class="stat-label">Learners</div>
+      </div>
+      <div class="stat-card" role="listitem" aria-label="{{ total_mentors }} mentors">
+        <div class="stat-number">{{ total_mentors }}</div><div class="stat-label">Mentors</div>
+      </div>
+      <div class="stat-card" role="listitem" aria-label="{{ total_courses }} courses">
+        <div class="stat-number">{{ total_courses }}</div><div class="stat-label">Courses</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Course Management ── -->
+  <section aria-labelledby="courses-heading" style="margin-top:2rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+      <h2 id="courses-heading" class="section-heading" style="margin:0;">📚 Course Management</h2>
+      <a href="{% url 'admin_course_create' %}" class="btn btn-primary" aria-label="Create new course">
+        ＋ Create Course
+      </a>
+    </div>
+
+    {% if courses %}
+    <div class="card" style="padding:0; overflow:hidden; margin-top:1rem;">
+      <table class="data-table" aria-label="All courses">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Title</th>
+            <th scope="col">Description</th>
+            <th scope="col">Price</th>
+            <th scope="col">Chapters</th>
+            <th scope="col">Created</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for course in courses %}
+          <tr>
+            <td style="color:var(--yellow); font-family:var(--font-mono);">#{{ course.id }}</td>
+            <td><strong>{{ course.title }}</strong></td>
+            <td style="color:var(--text-muted); font-size:0.9rem;">{{ course.description|truncatechars:60 }}</td>
+            <td>
+              {% if course.price == 0 %}
+                <span style="color:var(--green);font-size:0.85rem;font-weight:600;">Free</span>
+              {% else %}
+                <span style="color:var(--yellow);font-size:0.85rem;font-weight:600;">${{ course.price }}</span>
+              {% endif %}
+            </td>
+            <td style="text-align:center;">{{ course.get_chapter_count }}</td>
+            <td style="font-size:0.85rem; color:var(--text-muted);">{{ course.created_at|date:"d M Y" }}</td>
+            <td style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <a href="{% url 'admin_course_edit' course.id %}" class="btn btn-secondary btn-sm">✏ Edit</a>
+              <form method="post" action="{% url 'admin_course_delete' course.id %}" style="display:inline;"
+                    onsubmit="return confirm('Delete course {{ course.title }}? All chapters will be lost.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm">🗑 Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center; padding:2rem; margin-top:1rem;">
+      <p style="color:var(--text-secondary);">No courses yet. <a href="{% url 'admin_course_create' %}" style="color:var(--yellow);">Create the first course →</a></p>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- ── Learner & Mentor Assignment ── -->
+  <section aria-labelledby="learners-heading" style="margin-top:2rem;">
+    <h2 id="learners-heading" class="section-heading">🧑‍🎓 Learners & Mentor Assignment</h2>
+
+    {% if learner_data %}
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="data-table" aria-label="Learners with mentor assignments">
+        <thead>
+          <tr>
+            <th scope="col">User ID</th>
+            <th scope="col">Email</th>
+            <th scope="col">Joined</th>
+            <th scope="col">Assigned Mentor</th>
+            <th scope="col">Assign / Reassign</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in learner_data %}
+          <tr>
+            <td style="color:var(--yellow); font-family:var(--font-mono);">#{{ item.user.userid }}</td>
+            <td>{{ item.user.email }}</td>
+            <td style="font-size:0.85rem; color:var(--text-muted);">{{ item.user.date_joined|date:"d M Y" }}</td>
+            <td>
+              {% if item.mentor %}
+                <span style="color:var(--green);">✓ {{ item.mentor.email }}</span>
+              {% else %}
+                <span style="color:var(--text-muted); font-style:italic;">Not assigned</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="post" action="{% url 'admin_assign_mentor' item.user.id %}"
+                    style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                {% csrf_token %}
+                <select name="mentor_id" class="form-input" style="padding:0.3rem 0.6rem; font-size:0.85rem; min-width:160px;"
+                        aria-label="Select mentor for {{ item.user.email }}">
+                  <option value="">— select mentor —</option>
+                  {% for mentor in mentors %}
+                  <option value="{{ mentor.id }}" {% if item.mentor and item.mentor.id == mentor.id %}selected{% endif %}>
+                    {{ mentor.email }}
+                  </option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">Assign</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center; padding:2rem;">
+      <p style="color:var(--text-secondary);">No learners registered yet.</p>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- ── All Users Table ── -->
+  <section aria-labelledby="users-heading" style="margin-top:2rem;">
+    <h2 id="users-heading" class="section-heading">👥 All Registered Users</h2>
+
+    {% if all_users %}
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="data-table" aria-label="All registered users">
+        <thead>
+          <tr>
+            <th scope="col">User ID</th>
+            <th scope="col">Email</th>
+            <th scope="col">Role</th>
+            <th scope="col">Status</th>
+            <th scope="col">Joined</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in all_users %}
+          <tr>
+            <td style="font-family:var(--font-mono); color:var(--yellow);">#{{ u.userid }}</td>
+            <td>
+              {{ u.email }}
+              {% if u.id == user.id %}<span style="font-size:0.75rem; color:var(--text-muted);"> (you)</span>{% endif %}
+            </td>
+            <td><span class="badge badge-{{ u.role }}">{{ u.role|upper }}</span></td>
+            <td>
+              {% if u.is_active %}
+                <span style="color:var(--green); font-weight:700;">● Active</span>
+              {% else %}
+                <span style="color:var(--red);">○ Inactive</span>
+              {% endif %}
+            </td>
+            <td style="font-size:0.85rem; color:var(--text-muted);">{{ u.date_joined|date:"d M Y" }}</td>
+            <td>
+              {% if u.id == user.id %}
+                <span style="color:var(--text-muted); font-size:0.85rem;">— (you)</span>
+              {% elif u.role == 'admin' %}
+                <span style="color:var(--text-muted); font-size:0.85rem;">— (admin protected)</span>
+              {% else %}
+              <form method="post" action="{% url 'admin_delete_user' %}" style="display:inline;"
+                    onsubmit="return confirm('Permanently delete {{ u.email }}?');">
+                {% csrf_token %}
+                <input type="hidden" name="delete_user_id" value="{{ u.id }}">
+                <button type="submit" class="btn btn-danger btn-sm"
+                        aria-label="Delete user {{ u.email }}">🗑 Delete</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </section>
+
+</div>
+{% endblock %}

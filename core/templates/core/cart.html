@@ -1,0 +1,166 @@
+{% extends 'core/base.html' %}
+{% block title %}Shopping Cart{% endblock %}
+{% block main_class %}class="wide"{% endblock %}
+
+{% block content %}
+<div role="region" aria-labelledby="cart-heading">
+
+  <div class="dashboard-header" style="margin-bottom:1.5rem;">
+    <div>
+      <h1 id="cart-heading" class="page-heading">🛒 Shopping Cart</h1>
+      <p class="page-subheading" style="color:var(--text-muted);">
+        {% if cart_items %}
+          {{ cart_items|length }} item{{ cart_items|length|pluralize }} in your cart
+        {% else %}
+          Your cart is empty
+        {% endif %}
+      </p>
+    </div>
+    <div style="display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
+      <a href="{% url 'learner_dashboard' %}" class="btn btn-secondary btn-sm">← Browse Courses</a>
+      <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm">↩ Logout</a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}"
+         role="alert" aria-live="assertive" style="margin-bottom:1rem;">
+      {{ message }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if cart_items %}
+
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:2rem;align-items:start;" class="responsive-grid">
+
+    <!-- ── Cart Items List ── -->
+    <section aria-label="Cart items">
+      <div style="display:flex;flex-direction:column;gap:0.8rem;">
+        {% for item in cart_items %}
+        <div class="card" style="padding:1.2rem 1.5rem;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+
+            <!-- Course info -->
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.3rem;">
+                <span style="font-size:1.3rem;">📖</span>
+                <p style="font-weight:700;font-size:1rem;margin:0;">{{ item.course.title }}</p>
+              </div>
+              {% if item.course.description %}
+              <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.4rem;margin-left:1.9rem;">
+                {{ item.course.description|truncatechars:80 }}
+              </p>
+              {% endif %}
+              <p style="font-size:0.78rem;color:var(--text-muted);margin-left:1.9rem;">
+                {{ item.course.get_chapter_count }} chapter{{ item.course.get_chapter_count|pluralize }}
+                &nbsp;·&nbsp; Added {{ item.added_at|date:"d M Y" }}
+              </p>
+            </div>
+
+            <!-- Price + Remove -->
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.6rem;flex-shrink:0;">
+              <span style="font-size:1.25rem;font-weight:800;
+                           color:{% if item.course.price == 0 %}var(--green){% else %}var(--yellow){% endif %};">
+                {% if item.course.price == 0 %}FREE{% else %}<span style="font-size:0.7rem;vertical-align:super;font-weight:400;">$</span>{{ item.course.price }}{% endif %}
+              </span>
+              <form method="post" action="{% url 'cart_remove' item.course.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm"
+                        aria-label="Remove {{ item.course.title }} from cart"
+                        style="font-size:0.8rem;padding:0.3rem 0.7rem;">
+                  🗑 Remove
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ── Order Summary Sidebar ── -->
+    <aside>
+      <div class="card" style="padding:1.5rem;position:sticky;top:1rem;">
+        <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem;color:var(--yellow);">ORDER SUMMARY</h2>
+
+        <div style="display:flex;flex-direction:column;gap:0.45rem;margin-bottom:1rem;">
+          {% for item in cart_items %}
+          <div style="display:flex;justify-content:space-between;font-size:0.88rem;">
+            <span style="color:var(--text-muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:0.5rem;">
+              {{ item.course.title }}
+            </span>
+            <span style="flex-shrink:0;font-weight:600;">
+              {% if item.course.price == 0 %}Free{% else %}${{ item.course.price }}{% endif %}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:0.8rem;margin-bottom:1.3rem;">
+          <div style="display:flex;justify-content:space-between;font-size:1.05rem;font-weight:800;">
+            <span>Total</span>
+            <span style="color:var(--yellow);">
+              {% if cart_total == 0 %}Free{% else %}${{ cart_total }}{% endif %}
+            </span>
+          </div>
+          {% if paid_count > 0 and free_count > 0 %}
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.4rem;">
+            {{ paid_count }} paid + {{ free_count }} free course{{ free_count|pluralize }}
+          </p>
+          {% endif %}
+        </div>
+
+        <!-- Checkout button -->
+        <a href="{% url 'checkout_cart' %}"
+           class="btn btn-primary"
+           style="width:100%;text-align:center;display:block;padding:0.85rem;font-size:1rem;"
+           aria-label="Proceed to checkout">
+          {% if cart_total == 0 %}
+            ✓ Enroll Now — Free
+          {% else %}
+            💳 Checkout — ${{ cart_total }}
+          {% endif %}
+        </a>
+
+        <a href="{% url 'learner_dashboard' %}"
+           style="display:block;text-align:center;margin-top:0.8rem;font-size:0.85rem;color:var(--text-muted);">
+          ← Continue Shopping
+        </a>
+
+        <!-- Security note -->
+        <p style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:1rem;
+                  padding-top:0.8rem;border-top:1px solid var(--border);">
+          🧪 Demo mode — no real payment is processed
+        </p>
+      </div>
+    </aside>
+
+  </div>
+
+  {% else %}
+
+  <!-- Empty cart state -->
+  <div class="card" style="text-align:center;padding:4rem 2rem;">
+    <div style="font-size:4rem;margin-bottom:1rem;">🛒</div>
+    <h2 style="color:var(--yellow);margin-bottom:0.8rem;">Your cart is empty</h2>
+    <p style="color:var(--text-secondary);max-width:380px;margin:0 auto 1.5rem;">
+      Browse our course catalogue and add courses you'd like to take.
+    </p>
+    <a href="{% url 'learner_dashboard' %}" class="btn btn-primary" style="display:inline-block;">
+      Browse Courses →
+    </a>
+  </div>
+
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+  @media(max-width:900px){ .responsive-grid{ grid-template-columns:1fr !important; } }
+</style>
+{% endblock %}

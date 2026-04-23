@@ -1,0 +1,87 @@
+{% extends 'core/base.html' %}
+{% block title %}Mentor Dashboard{% endblock %}
+
+{% block page_intro %}
+<div id="page-intro"
+     data-message="You are on the Mentor Dashboard. Welcome, {{ user.email }}.
+                   You have {{ learner_count }} assigned learner{{ learner_count|pluralize }}.
+                   Press Alt H to hear this again."
+     aria-hidden="true"></div>
+{% endblock %}
+{% block main_class %}class="wide"{% endblock %}
+
+{% block content %}
+<div role="region" aria-labelledby="mentor-heading">
+
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div>
+      <h1 id="mentor-heading" class="page-heading">👩‍🏫 Mentor Dashboard</h1>
+      <p class="page-subheading">
+        Welcome, <strong style="color:var(--yellow);">{{ user.email }}</strong>
+        &nbsp;·&nbsp; <span class="badge badge-mentor">Mentor</span>
+        &nbsp;·&nbsp; #{{ user.userid }}
+      </p>
+    </div>
+    <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm">↩ Logout</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid" role="region" aria-label="Mentoring statistics">
+    <div class="stat-card">
+      <div class="stat-number">{{ learner_count }}</div>
+      <div class="stat-label">My Learners</div>
+    </div>
+  </div>
+
+  <!-- Assigned Learners -->
+  <section aria-labelledby="learners-heading" style="margin-top:2rem;">
+    <h2 id="learners-heading" class="section-heading">🧑‍🎓 My Assigned Learners</h2>
+
+    {% if learners %}
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      {% for learner in learners %}
+      <div class="card" style="padding:1.2rem 1.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+
+          <!-- Learner info -->
+          <div>
+            <p style="font-weight:600;margin-bottom:0.25rem;font-size:1rem;">{{ learner.email }}</p>
+            <p style="font-size:0.85rem;color:var(--text-muted);">
+              User ID: #{{ learner.userid }}
+              &nbsp;·&nbsp; Joined: {{ learner.date_joined|date:"d M Y" }}
+            </p>
+          </div>
+
+          <!-- Action buttons -->
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+            <a href="{% url 'mentor_learner_progress' learner.id %}"
+               class="btn btn-secondary btn-sm"
+               aria-label="View {{ learner.email }}'s course progress">
+              📊 View Progress
+            </a>
+            <a href="{% url 'mentor_chat' learner.id %}"
+               class="btn btn-primary btn-sm"
+               aria-label="Chat with {{ learner.email }}">
+              💬 Chat
+            </a>
+          </div>
+
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="card" style="text-align:center;padding:3rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">👥</div>
+      <p style="color:var(--text-secondary);">
+        No learners assigned yet. The admin will assign learners to you.
+      </p>
+    </div>
+    {% endif %}
+
+  </section>
+
+</div>
+{% endblock %}
